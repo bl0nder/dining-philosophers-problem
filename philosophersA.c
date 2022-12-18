@@ -62,10 +62,13 @@ void *doSomething(void* args) {
     semStruct* arg = args;
     
     //Test
-    printf("%d\n", arg->semNumber);
+    // printf("%d\n", arg->semNumber);
 
     //Perform eating and thinking operations
-
+    while (1) {
+        eat();
+        think();
+    }
 
     return 0;
 }

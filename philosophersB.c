@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 sem_t forks[5];
+sem_t sauceBowls;
 
 typedef struct {
     int semNumber;
@@ -34,6 +35,11 @@ int getRightFork(int philNum) {
         return 4;
     }
     return philNum-1;
+}
+
+void getSauceBowl(int philNum) {
+    sem_wait(&sauceBowls);
+    printf("Philosopher %d has a sauce bowl\n", philNum);
 }
 
 void eat(int philNum) {
@@ -67,6 +73,9 @@ void eat(int philNum) {
     //Unlock 
     sem_post(&forks[getLeftFork(philNum)]);
     sem_post(&forks[getRightFork(philNum)]);
+    sem_post(&sauceBowls);
+
+    printf("Philosopher %d has left the sauce bowl\n", philNum);
     
 }
 
@@ -83,6 +92,7 @@ void *doSomething(void* args) {
     while (1) {
         int philNum = arg -> semNumber;
         think(philNum);
+        getSauceBowl(philNum);
         eat(philNum);
     }
 
@@ -99,6 +109,7 @@ int main() {
     }
 
     //Initialise semaphores
+    sem_init(&sauceBowls, 0, 2);
     for (int i=0; i<5; i++) {
         sem_init(&forks[i], 0, 1);
     }

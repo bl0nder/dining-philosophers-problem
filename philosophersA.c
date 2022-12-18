@@ -24,7 +24,6 @@ int getRightFork(int philNum) {
 void eat(int philNum) {
     //Atomic operation of eating
     printf("Philosopher %d is eating\n", philNum);
-    sleep(0);
 }
 
 void getForks(int philNum) {
@@ -48,9 +47,7 @@ void putForks(int philNum) {
 }
 
 void think(int philNum) {
-    //Think for 1 second before trying to eat 
     printf("Philosopher %d is thinking\n", philNum);
-    sleep(1);
 }
 
 void *doSomething(void* args) {

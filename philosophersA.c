@@ -32,7 +32,7 @@ void getForks(int philNum) {
         sem_wait(&forks[getRightFork(philNum)]);
 
         //Wait for left fork to be free
-        sem_wait(&forks[getLeftFork(philNum)])
+        sem_wait(&forks[getLeftFork(philNum)]);
     }
 
     else {

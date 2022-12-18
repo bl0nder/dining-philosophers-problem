@@ -37,6 +37,7 @@ void eat(int philNum) {
         //Unlock right and left forks respectively
         sem_post(&forks[getRightFork(philNum)]);
         sem_post(&forks[getLeftFork(philNum)]);
+        think();
     }
     else {
 
@@ -49,7 +50,7 @@ void eat(int philNum) {
         
         sem_post(&forks[getLeftFork(philNum)]);
         sem_post(&forks[getRightFork(philNum)]);
-
+        think();
     }
 }
 
@@ -66,7 +67,6 @@ void *doSomething(void* args) {
 
     //Perform eating and thinking operations
     while (1) {
-        think();
         eat(arg->semNumber);
     }
 

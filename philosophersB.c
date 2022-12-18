@@ -40,6 +40,7 @@ int getRightFork(int philNum) {
 void getSauceBowl(int philNum) {
     sem_wait(&sauceBowls);
     printf("Philosopher %d has a sauce bowl\n", philNum);
+    sleep(1);
 }
 
 void eat(int philNum) {

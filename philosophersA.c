@@ -8,20 +8,62 @@ typedef struct {
     int semNumber;
 } semStruct;
 
-void eat() {
+int getLeftFork(int philNum) {
+    return philNum;
+}
 
+int getRightFork(int philNum) {
+    if (philNum == 0) {
+        return 4;
+    }
+    return philNum-1;
+}
+
+void eat(int philNum) {
+
+    if (philNum == 4) {
+
+        //Wait for right fork to be free
+        sem_wait(&forks[getRightFork(philNum)]);
+
+        //Wait for left fork to be free
+        sem_wait(&forks[getLeftFork(philNum)]); 
+
+        //Atomic operation of acquiring both forks and then eating
+        printf("Philosopher %d is eating\n", philNum);
+
+        //Unlock right and left forks respectively
+        sem_post(&forks[getRightFork(philNum)]);
+        sem_post(&forks[getLeftFork(philNum)]);
+    }
+    else {
+
+        sem_wait(&forks[getLeftFork(philNum)]);
+        sem_wait(&forks[getRightFork(philNum)]);
+
+        getLeftFork(philNum);
+        getRightFork(philNum);
+        printf("Philosopher %d is eating\n", philNum);
+        
+        sem_post(&forks[getLeftFork(philNum)]);
+        sem_post(&forks[getRightFork(philNum)]);
+
+    }
 }
 
 void think() {
-
+    //Think for 1 second before trying to eat 
+    sleep(1000);
 }
 
 void *doSomething(void* args) {
-    
     semStruct* arg = args;
-
-    printf("Hello world\n");
+    
+    //Test
     printf("%d\n", arg->semNumber);
+
+    //Perform eating and thinking operations
+
 
     return 0;
 }

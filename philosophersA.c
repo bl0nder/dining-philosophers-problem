@@ -14,7 +14,8 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    printf("%d\n", *args[0]);
+    int* semNumber = *args;
+    printf("%d\n", semNumber[0]);
 }
 
 int main() {

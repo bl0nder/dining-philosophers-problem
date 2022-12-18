@@ -18,9 +18,9 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    semStruct* arg = args;
+    int* temp = args;
     printf("Hello world\n");
-    printf("%d\n", arg->semNumber);
+    printf("%d\n", temp[0]);
 }
 
 int main() {
@@ -44,10 +44,8 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        semStruct* args = malloc(sizeof(semStruct));
-        args -> semNumber = i;
-        pthread_create(&philosophers[i], NULL, doSomething, (void*) args);
-        free(args);
+        int* temp = i;
+        pthread_create(&philosophers[i], NULL, doSomething, (void*) &temp);
     }
 
     return 0;

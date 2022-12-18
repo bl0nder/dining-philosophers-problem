@@ -46,9 +46,10 @@ void putForks(int philNum) {
     sem_post(&forks[getRightFork(philNum)]);
 }
 
-void think() {
+void think(int philNum) {
     //Think for 1 second before trying to eat 
-    sleep(1000);
+    printf("Philosopher %d is thinking\n", philNum);
+    sleep(1);
 }
 
 void *doSomething(void* args) {
@@ -59,7 +60,7 @@ void *doSomething(void* args) {
 
     //Perform eating and thinking operations
     while (1) {
-        think();
+        think(arg -> semNumber);
         getForks(arg -> semNumber);
         eat(arg -> semNumber);
         putForks(arg -> semNumber);

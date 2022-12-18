@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-
 sem_t forks[5];
 
 typedef struct {
@@ -44,6 +43,7 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
+        printf("test: %d\n", i);
         int temp = i;
         pthread_create(&philosophers[i], NULL, doSomething, (void*) &temp);
     }

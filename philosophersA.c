@@ -54,5 +54,9 @@ int main() {
         }
     }
 
+    for (int i=0; i<5; i++) {
+        pthread_join(philosophers[i], NULL);
+    }
+
     return 0;
 }

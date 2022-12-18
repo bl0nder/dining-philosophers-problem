@@ -66,7 +66,7 @@ void *doSomething(void* args) {
 
     //Perform eating and thinking operations
     while (1) {
-        eat();
+        eat(arg->semNumber);
         think();
     }
 

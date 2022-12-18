@@ -1,3 +1,3 @@
 all: 
 	gcc philosophersA.c -pthread -o philosophersA
-	./philosophersA
+	gcc philosophersB.c -pthread -o philosophersB

@@ -5,6 +5,10 @@
 
 sem_t forks[5];
 
+typedef struct {
+    int semNumber;
+} semStruct;
+
 void eat() {
 
 }
@@ -14,8 +18,8 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    int* semNumber = args;
-    printf("%d\n", semNumber[0]);
+    semStruct* arg = args;
+    printf("%d\n", arg->semNumber);
 }
 
 int main() {
@@ -39,8 +43,10 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        int temp = i;
-        pthread_create(&philosophers[i], NULL, doSomething, (void*) &temp);
+        semStruct* args = malloc(sizeof(semStruct));
+        args -> semNumber = i;
+        pthread_create(&philosophers[i], NULL, doSomething, (void*) args);
+        free(args);
     }
 
     return 0;

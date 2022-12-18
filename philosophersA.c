@@ -44,7 +44,7 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        int* temp = i;
+        int temp = i;
         pthread_create(&philosophers[i], NULL, doSomething, (void*) &temp);
     }
 

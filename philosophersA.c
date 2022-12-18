@@ -19,6 +19,7 @@ void think() {
 
 void *doSomething(void* args) {
     semStruct* arg = args;
+    printf("Hello world\n");
     printf("%d\n", arg->semNumber);
 }
 

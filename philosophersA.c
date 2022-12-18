@@ -21,7 +21,7 @@ void *doSomething(void* args) {
     semStruct* arg = args;
 
     printf("Hello world\n");
-    printf("%d\n", args->semNumber);
+    printf("%d\n", arg->semNumber);
 
     return 0;
 }

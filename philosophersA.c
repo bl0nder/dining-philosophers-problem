@@ -10,7 +10,8 @@ typedef struct {
     int semNumber;
 } semStruct;
 
-/*
+/*  Assumed order of philosophers (P0-P4) and forks (F0-F4):
+
         P0
       /    \
     F4      F0
@@ -37,6 +38,8 @@ int getRightFork(int philNum) {
 
 void eat(int philNum) {
 
+    //Using if-else conditions for strict ordering of resource requests (elaborated in coresponding report)
+
     if (philNum == 4) {
         //Wait for right fork to be free
         sem_wait(&forks[getRightFork(philNum)]);
@@ -60,30 +63,12 @@ void eat(int philNum) {
         sleep(1);
     }
 
+
+    //Unlock 
     sem_post(&forks[getLeftFork(philNum)]);
     sem_post(&forks[getRightFork(philNum)]);
     
 }
-
-// void getForks(int philNum) {
-//     if (philNum == 4) {
-//         //Wait for right fork to be free
-//         sem_wait(&forks[getRightFork(philNum)]);
-
-//         //Wait for left fork to be free
-//         sem_wait(&forks[getLeftFork(philNum)]);
-//     }
-
-//     else {
-//         sem_wait(&forks[getLeftFork(philNum)]);
-//         sem_wait(&forks[getRightFork(philNum)]);
-//     }
-// }
-
-// void putForks(int philNum) {
-//     //Put forks down for someone else to use
-    
-// }
 
 void think(int philNum) {
     //Think for 1 second 
@@ -120,7 +105,6 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        // printf("test: %d\n", i);
         
         //Args for function executed by thread
         semStruct* args = malloc(sizeof(semStruct));
@@ -135,6 +119,7 @@ int main() {
         }
     }
 
+    //Joining threads
     for (int i=0; i<5; i++) {
         pthread_join(philosophers[i], NULL);
     }

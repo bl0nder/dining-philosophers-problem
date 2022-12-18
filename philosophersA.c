@@ -14,7 +14,7 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    printf("%d\n", args[0]);
+    printf("%d\n", *args[0]);
 }
 
 int main() {
@@ -38,7 +38,8 @@ int main() {
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        pthread_create(&philosophers[i], NULL, doSomething, (void*) i);
+        int temp = i;
+        pthread_create(&philosophers[i], NULL, doSomething, (void*) &temp);
     }
 
     return 0;

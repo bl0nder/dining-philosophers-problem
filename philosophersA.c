@@ -21,37 +21,29 @@ int getRightFork(int philNum) {
     return philNum-1;
 }
 
-void eat(int philNum) {
+void eat() {
+    //Atomic operation of eating
+    printf("Philosopher %d is eating\n", philNum);
+}
 
+void getForks(int philNum) {
     if (philNum == 4) {
-
         //Wait for right fork to be free
         sem_wait(&forks[getRightFork(philNum)]);
 
         //Wait for left fork to be free
-        sem_wait(&forks[getLeftFork(philNum)]); 
-
-        //Atomic operation of acquiring both forks and then eating
-        printf("Philosopher %d is eating\n", philNum);
-
-        //Unlock right and left forks respectively
-        sem_post(&forks[getRightFork(philNum)]);
-        sem_post(&forks[getLeftFork(philNum)]);
-        think();
+        sem_wait(&forks[getLeftFork(philNum)])
     }
-    else {
 
+    else {
         sem_wait(&forks[getLeftFork(philNum)]);
         sem_wait(&forks[getRightFork(philNum)]);
-
-        getLeftFork(philNum);
-        getRightFork(philNum);
-        printf("Philosopher %d is eating\n", philNum);
-        
-        sem_post(&forks[getLeftFork(philNum)]);
-        sem_post(&forks[getRightFork(philNum)]);
-        think();
     }
+}
+
+void putForks(int philNum) {
+    sem_post(&forks[getLeftFork(philNum)]);
+    sem_post(&forks[getRightFork(philNum)]);
 }
 
 void think() {
@@ -67,7 +59,10 @@ void *doSomething(void* args) {
 
     //Perform eating and thinking operations
     while (1) {
-        eat(arg->semNumber);
+        think();
+        getForks(arg->semNumber);
+        eat();
+        putForks(arg->semNumber);
     }
 
     return 0;

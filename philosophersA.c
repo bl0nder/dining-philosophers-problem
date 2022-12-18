@@ -45,7 +45,11 @@ int main() {
     for (int i=0; i<5; i++) {
         // printf("test: %d\n", i);
         int *temp = &i;
-        pthread_create(&philosophers[i], NULL, doSomething, temp);
+        int createErr = pthread_create(&philosophers[i], NULL, doSomething, temp);
+
+        if (createErr) {
+            printf("Error in creating thread %d\n", i+1);
+        }
     }
 
     return 0;

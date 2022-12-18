@@ -17,9 +17,11 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    // int* temp = args;
+    int* temp = args;
     printf("Hello world\n");
-    // printf("%d\n", temp[0]);
+    printf("%d\n", temp[0]);
+
+    return NULL;
 }
 
 int main() {
@@ -45,7 +47,7 @@ int main() {
     for (int i=0; i<5; i++) {
         // printf("test: %d\n", i);
         int *temp = &i;
-        int createErr = pthread_create(&philosophers[i], NULL, doSomething, NULL);
+        int createErr = pthread_create(&philosophers[i], NULL, doSomething, temp);
 
         if (createErr) {
             printf("Error in creating thread %d\n", i+1);

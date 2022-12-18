@@ -29,9 +29,9 @@ int main() {
 
     for (int i=0; i<5; i++) {
         
-        //Add threads to thread array
-        pthread_t p;
-        philosophers[i] = p;
+        // //Add threads to thread array
+        // pthread_t p;
+        // philosophers[i] = p;
 
         //Create semaphores
         sem_t fork;

@@ -14,7 +14,7 @@ void think() {
 }
 
 void *doSomething(void* args) {
-    int* semNumber = *args;
+    int* semNumber = args;
     printf("%d\n", semNumber[0]);
 }
 

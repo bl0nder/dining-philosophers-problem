@@ -21,7 +21,7 @@ void *doSomething(void* args) {
     printf("Hello world\n");
     printf("%d\n", temp[0]);
 
-    return NULL;
+    return 0;
 }
 
 int main() {

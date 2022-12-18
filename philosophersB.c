@@ -38,9 +38,11 @@ int getRightFork(int philNum) {
 }
 
 void getSauceBowl(int philNum) {
+
+    //Wait for a free sauce bowl and take one whenever it becomes available
     sem_wait(&sauceBowls);
     printf("Philosopher %d has a sauce bowl\n", philNum);
-    sleep(1);
+    sleep(1);   //Let operation of taking sauce bowl take 1 sec - clearly shows that a philosopher proceeds to eat only if they have a sauce bowl as is required
 }
 
 void eat(int philNum) {
@@ -74,9 +76,9 @@ void eat(int philNum) {
     //Unlock 
     sem_post(&forks[getLeftFork(philNum)]);
     sem_post(&forks[getRightFork(philNum)]);
-    sem_post(&sauceBowls);
+    sem_post(&sauceBowls);  //Leave sauce bowl after philosopher has eaten 
 
-    printf("Philosopher %d has left the sauce bowl\n", philNum);
+    printf("Philosopher %d has left the sauce bowl\n", philNum);    //Message to notify user of free sauce bowls (helps in checking program's functioning)
     
 }
 
@@ -93,7 +95,7 @@ void *doSomething(void* args) {
     while (1) {
         int philNum = arg -> semNumber;
         think(philNum);
-        getSauceBowl(philNum);
+        getSauceBowl(philNum);  //Trying to get sauce bowl before eating since philosophers cannot eat without sauce in this part of the question
         eat(philNum);
     }
 
@@ -115,7 +117,7 @@ int main() {
         sem_init(&forks[i], 0, 1);
     }
 
-    //Start threads so that each philosopher does something - thinks or eats
+    //Start threads so that each philosopher does something - thinks, eats or gets a sauce bowl
     for (int i=0; i<5; i++) {
         
         //Args for function executed by thread

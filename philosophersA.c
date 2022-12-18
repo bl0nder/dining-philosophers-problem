@@ -3,13 +3,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-sem_t fork1 = 1;
-sem_t fork2 = 2;
-sem_t fork3 = 3;
-sem_t fork4 = 4;
-sem_t fork5 = 5;
-
-sem_t forks[5] = {fork1, fork2, fork3, fork4, fork5};
+sem_t forks[5];
 
 void eat() {
 
@@ -32,15 +26,19 @@ int main() {
         pthread_t p;
         philosophers[i] = p;
 
-        //Initialise semaphores
+        //Create semaphores
+        sem_t fork;
+        forks[i] = fork;
+    }
+
+    //Initialise semaphores
+    for (int i=0; i<5; i++) {
         sem_init(&forks[i], 0, 1);
     }
 
+    //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
-        //Start threads so that each philosopher does something - thinks or eats
         pthread_create(&philosophers[i], NULL, doSomething, (void*) i);
-
-
     }
 
     return 0;

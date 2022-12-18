@@ -50,7 +50,7 @@ void putForks(int philNum) {
 void think(int philNum) {
     //Think for 1 second 
     printf("Philosopher %d is thinking\n", philNum);
-    sleep(1);
+    sleep(0);
 }
 
 void *doSomething(void* args) {

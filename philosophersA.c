@@ -10,6 +10,20 @@ typedef struct {
     int semNumber;
 } semStruct;
 
+/*
+        P0
+      /    \
+    F4      F0
+  /            \
+P4              P1
+ \             /
+  F3          F1
+   \          /
+    P3      P2
+      \    /
+        F2
+*/
+
 int getLeftFork(int philNum) {
     return philNum;
 }
@@ -22,30 +36,54 @@ int getRightFork(int philNum) {
 }
 
 void eat(int philNum) {
-    //Atomic operation of eating - 1 seconds (say)
-    printf("Philosopher %d is eating\n", philNum);
-    sleep(1);
-}
 
-void getForks(int philNum) {
     if (philNum == 4) {
         //Wait for right fork to be free
         sem_wait(&forks[getRightFork(philNum)]);
 
         //Wait for left fork to be free
         sem_wait(&forks[getLeftFork(philNum)]);
+
+        //Atomic operation of eating - 1 seconds (say)
+        printf("Philosopher %d is eating\n", philNum);
+        sleep(1);
+
+
     }
 
     else {
         sem_wait(&forks[getLeftFork(philNum)]);
         sem_wait(&forks[getRightFork(philNum)]);
-    }
-}
 
-void putForks(int philNum) {
+        //Atomic operation of eating - 1 seconds (say)
+        printf("Philosopher %d is eating\n", philNum);
+        sleep(1);
+    }
+
     sem_post(&forks[getLeftFork(philNum)]);
     sem_post(&forks[getRightFork(philNum)]);
+    
 }
+
+// void getForks(int philNum) {
+//     if (philNum == 4) {
+//         //Wait for right fork to be free
+//         sem_wait(&forks[getRightFork(philNum)]);
+
+//         //Wait for left fork to be free
+//         sem_wait(&forks[getLeftFork(philNum)]);
+//     }
+
+//     else {
+//         sem_wait(&forks[getLeftFork(philNum)]);
+//         sem_wait(&forks[getRightFork(philNum)]);
+//     }
+// }
+
+// void putForks(int philNum) {
+//     //Put forks down for someone else to use
+    
+// }
 
 void think(int philNum) {
     //Think for 1 second 
@@ -55,16 +93,12 @@ void think(int philNum) {
 
 void *doSomething(void* args) {
     semStruct* arg = args;
-    
-    //Test
-    // printf("%d\n", arg->semNumber);
 
     //Perform eating and thinking operations
     while (1) {
-        think(arg -> semNumber);
-        getForks(arg -> semNumber);
-        eat(arg -> semNumber);
-        putForks(arg -> semNumber);
+        int philNum = arg -> semNumber;
+        think(philNum);
+        eat(philNum);
     }
 
     return 0;
@@ -74,11 +108,6 @@ int main() {
     pthread_t philosophers[5];
 
     for (int i=0; i<5; i++) {
-        
-        // //Add threads to thread array
-        // pthread_t p;
-        // philosophers[i] = p;
-
         //Create semaphores
         sem_t fork;
         forks[i] = fork;

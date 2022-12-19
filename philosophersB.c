@@ -1,124 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-#include <stdio.h>
+#include <unistd.h>
 
-#define N 5
-#define THINKING 2
-#define HUNGRY 1
-#define EATING 0
-#define LEFT (phnum + 4) % N
-#define RIGHT (phnum + 1) % N
+sem_t forks[5];
+sem_t sauceBowls;
 
-int state[N];
-int phil[N] = { 0, 1, 2, 3, 4 };
+typedef struct {
+    int semNumber;
+} semStruct;
 
-sem_t mutex;
-sem_t S[N];
+/*  Assumed order of philosophers (P0-P4) and forks (F0-F4):
 
-void test(int phnum)
-{
-if (state[phnum] == HUNGRY
-&& state[LEFT] != EATING
-&& state[RIGHT] != EATING) {
-// state that eating
-state[phnum] = EATING;
+        P0
+      /    \
+    F4      F0
+  /            \
+P4              P1
+ \             /
+  F3          F1
+   \          /
+    P3      P2
+      \    /
+        F2
+*/
 
-sleep(2);
-
-printf("Philosopher %d takes fork %d and %d\n",
-phnum + 1, LEFT + 1, phnum + 1);
-
-printf("Philosopher %d is Eating\n", phnum + 1);
-
-// sem_post(&S[phnum]) has no effect
-// during takefork
-// used to wake up hungry philosophers
-// during putfork
-sem_post(&S[phnum]);
-}
+int getLeftFork(int philNum) {
+    return philNum;
 }
 
-// take up chopsticks
-void take_fork(int phnum)
-{
-
-sem_wait(&mutex);
-
-// state that hungry
-state[phnum] = HUNGRY;
-
-printf("Philosopher %d is Hungry\n", phnum + 1);
-
-// eat if neighbours are not eating
-test(phnum);
-
-sem_post(&mutex);
-
-// if unable to eat wait to be signalled
-sem_wait(&S[phnum]);
-
-sleep(1);
+int getRightFork(int philNum) {
+    if (philNum == 0) {
+        return 4;
+    }
+    return philNum-1;
 }
 
-// put down chopsticks
-void put_fork(int phnum)
-{
+void getSauceBowl(int philNum) {
 
-sem_wait(&mutex);
-
-// state that thinking
-state[phnum] = THINKING;
-
-printf("Philosopher %d putting fork %d and %d down\n",
-phnum + 1, LEFT + 1, phnum + 1);
-printf("Philosopher %d is thinking\n", phnum + 1);
-
-test(LEFT);
-test(RIGHT);
-
-sem_post(&mutex);
+    //Wait for a free sauce bowl and take one whenever it becomes available
+    sem_wait(&sauceBowls);
+    printf("Philosopher %d has a sauce bowl\n", philNum);
+    sleep(1);   //Let operation of taking sauce bowl take 1 sec - clearly shows that a philosopher proceeds to eat only if they have a sauce bowl as is required
 }
 
-void* philosopher(void* num)
-{
+void eat(int philNum) {
 
-while (1) {
+    //Using if-else conditions for strict ordering of resource requests (elaborated in coresponding report)
 
-int* i = num;
+    if (philNum == 4) {
+        //Wait for right fork to be free
+        sem_wait(&forks[getRightFork(philNum)]);
 
-sleep(1);
+        //Wait for left fork to be free
+        sem_wait(&forks[getLeftFork(philNum)]);
 
-take_fork(*i);
+        //Atomic operation of eating - 1 seconds (say)
+        printf("Philosopher %d is eating\n", philNum);
+        sleep(1);
 
-sleep(0);
 
-put_fork(*i);
-}
-}
+    }
 
-int main()
-{
+    else {
+        sem_wait(&forks[getLeftFork(philNum)]);
+        sem_wait(&forks[getRightFork(philNum)]);
 
-int i;
-pthread_t thread_id[N];
+        //Atomic operation of eating - 1 seconds (say)
+        printf("Philosopher %d is eating\n", philNum);
+        sleep(1);
+    }
 
-// initialize the semaphores
-sem_init(&mutex, 0, 1);
 
-for (i = 0; i < N; i++)
+    //Unlock 
+    sem_post(&forks[getLeftFork(philNum)]);
+    sem_post(&forks[getRightFork(philNum)]);
+    sem_post(&sauceBowls);  //Leave sauce bowl after philosopher has eaten 
 
-sem_init(&S[i], 0, 0);
-
-for (i = 0; i < N; i++) {
-
-// create philosopher processes
-pthread_create(&thread_id[i], NULL,
-philosopher, &phil[i]);
-
-printf("Philosopher %d is thinking\n", i + 1);
+    printf("Philosopher %d has left the sauce bowl\n", philNum);    //Message to notify user of free sauce bowls (helps in checking program's functioning)
+    
 }
 
-for (i = 0; i < N; i++)
-
-pthread_join(thread_id[i], NULL);
+void think(int philNum) {
+    //Think for 1 second 
+    printf("Philosopher %d is thinking\n", philNum);
+    sleep(1);
 }
+
+void *doSomething(void* args) {
+    semStruct* arg = args;
+
+    //Perform eating and thinking operations
+    while (1) {
+        int philNum = arg -> semNumber;
+        think(philNum);
+        getSauceBowl(philNum);  //Trying to get sauce bowl before eating since philosophers cannot eat without sauce in this part of the question
+        eat(philNum);
+    }
+
+    return 0;
+}
+
+int main() {
+    pthread_t philosophers[5];
+
+    for (int i=0; i<5; i++) {
+        //Create semaphores
+        sem_t fork;
+        forks[i] = fork;
+    }
+
+    //Initialise semaphores
+    sem_init(&sauceBowls, 0, 2);
+    for (int i=0; i<5; i++) {
+        sem_init(&forks[i], 0, 1);
+    }
+
+    //Start threads so that each philosopher does something - thinks, eats or gets a sauce bowl
+    for (int i=0; i<5; i++) {
+        
+        //Args for function executed by thread
+        semStruct* args = malloc(sizeof(semStruct));
+        args -> semNumber = i;
+
+        //Create thread
+        int createErr = pthread_create(&philosophers[i], NULL, doSomething, (void*) args);
+
+        //Error handling while creating thread
+        if (createErr) {
+            printf("Error in creating thread %d\n", i+1);
+        }
+    }
+
+    //Joining threads
+    for (int i=0; i<5; i++) {
+        pthread_join(philosophers[i], NULL);
+    }
+
+    return 0;
+}
+

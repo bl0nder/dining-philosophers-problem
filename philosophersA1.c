@@ -4,11 +4,11 @@
 #include <semaphore.h>
 #include <unistd.h>
 
-sem_t forks[5];
+int forks[5];
 
 typedef struct {
-    int semNumber;
-} semStruct;
+    int forkNum;
+} forkStruct;
 
 /*  Assumed order of philosophers (P0-P4) and forks (F0-F4):
 
@@ -42,31 +42,55 @@ void eat(int philNum) {
 
     if (philNum == 4) {
         //Wait for right fork to be free
-        sem_wait(&forks[getRightFork(philNum)]);
+        // sem_wait(&forks[getRightFork(philNum)]);
+
+        while (forks[getRightFork(philNum)] != 0) {
+            continue;
+        }
+
+        forks[getRightFork(philNum)] = 1;
 
         //Wait for left fork to be free
-        sem_wait(&forks[getLeftFork(philNum)]);
+        // sem_wait(&forks[getLeftFork(philNum)]);
+
+        while (forks[getLeftFork(philNum)] != 0) {
+            continue;
+        }
+
+        forks[getLeftFork(philNum)] = 1;
 
         //Atomic operation of eating - 1 seconds (say)
         printf("Philosopher %d is eating\n", philNum);
         sleep(1);
-
 
     }
 
     else {
-        sem_wait(&forks[getLeftFork(philNum)]);
-        sem_wait(&forks[getRightFork(philNum)]);
+        // sem_wait(&forks[getLeftFork(philNum)]);
+
+        while (forks[getLeftFork(philNum)] != 0) {
+            continue;
+        }
+
+        forks[getLeftFork(philNum)] = 1;
+
+
+        // sem_wait(&forks[getRightFork(philNum)]);
+        while (forks[getRightFork(philNum)] != 0) {
+            continue;
+        }
+
+        forks[getRightFork(philNum)] = 1;
 
         //Atomic operation of eating - 1 seconds (say)
         printf("Philosopher %d is eating\n", philNum);
         sleep(1);
     }
 
+    forks[getLeftFork(philNum)] = 0;
 
-    //Unlock 
-    sem_post(&forks[getLeftFork(philNum)]);
-    sem_post(&forks[getRightFork(philNum)]);
+
+    forks[getRightFork(philNum)] = 0;
     
 }
 
@@ -77,11 +101,11 @@ void think(int philNum) {
 }
 
 void *doSomething(void* args) {
-    semStruct* arg = args;
+    forkStruct* arg = args;
 
     //Perform eating and thinking operations
     while (1) {
-        int philNum = arg -> semNumber;
+        int philNum = arg -> forkNum;
         think(philNum);
         eat(philNum);
     }
@@ -94,21 +118,15 @@ int main() {
 
     for (int i=0; i<5; i++) {
         //Create semaphores
-        sem_t fork;
-        forks[i] = fork;
-    }
-
-    //Initialise semaphores
-    for (int i=0; i<5; i++) {
-        sem_init(&forks[i], 0, 1);
+        forks[i] = 0;
     }
 
     //Start threads so that each philosopher does something - thinks or eats
     for (int i=0; i<5; i++) {
         
         //Args for function executed by thread
-        semStruct* args = malloc(sizeof(semStruct));
-        args -> semNumber = i;
+        forkStruct* args = malloc(sizeof(forkStruct));
+        args -> forkNum = i;
 
         //Create thread
         int createErr = pthread_create(&philosophers[i], NULL, doSomething, (void*) args);

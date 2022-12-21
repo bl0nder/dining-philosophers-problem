@@ -40,7 +40,6 @@ int getRightFork(int philNum) {
 void getSauceBowl(int philNum) {
 
     //Wait for a free sauce bowl and take one whenever it becomes available
-    // sem_wait(&sauceBowls);
     while (sauceBowls < 1) {
         continue;
     }
@@ -53,7 +52,6 @@ void getSauceBowl(int philNum) {
 void eat(int philNum) {
 
     //Using if-else conditions for strict ordering of resource requests (elaborated in coresponding report)
-
     if (philNum == 4) {
         //Wait for right fork to be free
         while (forks[getRightFork(philNum)] != 0) {
